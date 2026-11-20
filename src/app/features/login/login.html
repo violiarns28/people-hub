@@ -1,0 +1,190 @@
+<div class="grid min-h-dvh lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+  <aside class="brand-panel dot-grid-on-brand hidden lg:flex" aria-hidden="true">
+    <div class="flex w-full flex-col justify-between gap-8 p-12 xl:p-16">
+      <div>
+        <div class="flex items-center gap-3">
+          <span class="brand-mark"><app-icon name="users" [size]="20" /></span>
+          <span class="text-xl font-semibold tracking-tight">PeopleHub</span>
+        </div>
+        <span class="accent-line mt-6 block"></span>
+        <p class="mt-5 max-w-md text-3xl/tight font-semibold tracking-tight">
+          Everyone on the team, in one list.
+        </p>
+        <p class="panel-muted mt-3 max-w-sm text-base">
+          Look people up, fix a typo, add the new hire. Nothing else gets in the way.
+        </p>
+      </div>
+
+      <div class="flex justify-center">
+        <app-illustration name="team" tone="on-brand" [size]="440" [animated]="true" />
+      </div>
+
+      <div>
+        <ul class="value-props grid grid-cols-3 gap-4">
+          <li class="flex flex-col gap-2">
+            <span class="value-tile"><app-icon name="shield" [size]="18" /></span>
+            <span class="text-sm font-semibold">Staff only</span>
+            <span class="panel-muted text-xs/5">You need to sign in to see anything.</span>
+          </li>
+          <li class="flex flex-col gap-2">
+            <span class="value-tile"><app-icon name="search" [size]="18" /></span>
+            <span class="text-sm font-semibold">Fast search</span>
+            <span class="panel-muted text-xs/5">Type a name, username or email.</span>
+          </li>
+          <li class="flex flex-col gap-2">
+            <span class="value-tile"><app-icon name="eye-off" [size]="18" /></span>
+            <span class="text-sm font-semibold">Masked by default</span>
+            <span class="panel-muted text-xs/5"
+              >Emails, salaries and birth dates stay hidden until you ask.</span
+            >
+          </li>
+        </ul>
+        <p class="panel-rule panel-muted mt-8 pt-4 text-xs">
+          Internal use only. Keep what you see here to yourself.
+        </p>
+      </div>
+    </div>
+  </aside>
+
+  <main id="main" class="flex items-center justify-center px-4 py-10 sm:px-8">
+    <div class="w-full max-w-md">
+      <div class="mb-8 flex items-center gap-3 lg:hidden">
+        <span class="brand-mark"><app-icon name="users" [size]="20" /></span>
+        <span class="text-xl font-semibold tracking-tight">PeopleHub</span>
+      </div>
+
+      <div class="card rise-in p-6 sm:p-8">
+        <h1 class="text-3xl font-semibold">Sign in</h1>
+        <p class="text-ink-2 mt-1.5 text-sm">Enter your username and password.</p>
+
+        <form class="mt-7 space-y-5" novalidate (submit)="onSubmit($event)">
+          <div aria-live="assertive">
+            @if (authError(); as message) {
+              <p
+                class="banner-error border-bad/30 bg-bad-soft text-bad mb-1 flex items-start gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium"
+                role="alert"
+              >
+                <app-icon name="alert" [size]="16" class="mt-0.5 shrink-0" />
+                {{ message }}
+              </p>
+            }
+            @if (locked()) {
+              <p
+                class="banner-lock border-warn/30 bg-warn-soft text-warn mb-1 flex items-start gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium"
+              >
+                <app-icon name="lock" [size]="16" class="mt-0.5 shrink-0" />
+                <span>
+                  Too many failed attempts. Try again in
+                  <span class="num" data-testid="lock-seconds">{{ lockSeconds() }}</span>s.
+                </span>
+              </p>
+            }
+          </div>
+
+          <div>
+            <label class="label" for="username">Username</label>
+            <input
+              id="username"
+              class="input"
+              autocomplete="username"
+              autocapitalize="none"
+              spellcheck="false"
+              [formField]="loginForm.username"
+              [attr.aria-invalid]="loginForm.username().touched() && loginForm.username().invalid()"
+              [attr.aria-describedby]="
+                loginForm.username().touched() && loginForm.username().invalid()
+                  ? 'username-error'
+                  : null
+              "
+            />
+            <div aria-live="polite">
+              @if (loginForm.username().touched() && loginForm.username().invalid()) {
+                <p id="username-error" class="field-error">
+                  {{ loginForm.username().errors()[0]?.message }}
+                </p>
+              }
+            </div>
+          </div>
+
+          <div>
+            <label class="label" for="password">Password</label>
+            <div class="relative">
+              <input
+                id="password"
+                class="input pr-12"
+                [type]="showPassword() ? 'text' : 'password'"
+                autocomplete="current-password"
+                [formField]="loginForm.password"
+                [attr.aria-invalid]="
+                  loginForm.password().touched() && loginForm.password().invalid()
+                "
+                [attr.aria-describedby]="
+                  loginForm.password().touched() && loginForm.password().invalid()
+                    ? 'password-error'
+                    : capsLock()
+                      ? 'caps-warning'
+                      : null
+                "
+                (keydown)="onPasswordKey($event)"
+                (keyup)="onPasswordKey($event)"
+                (blur)="capsLock.set(false)"
+              />
+              <button
+                type="button"
+                class="btn-icon eye-btn text-ink-2 hover:bg-surface-2 hover:text-ink absolute top-1/2 right-1 size-10 -translate-y-1/2"
+                [attr.aria-pressed]="showPassword()"
+                [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+                (click)="toggleShowPassword()"
+              >
+                <span class="eye" [class.shown]="showPassword()">
+                  <app-icon class="eye-on" name="eye-off" [size]="18" />
+                  <app-icon class="eye-off" name="eye" [size]="18" />
+                </span>
+              </button>
+            </div>
+            <div aria-live="polite">
+              @if (loginForm.password().touched() && loginForm.password().invalid()) {
+                <p id="password-error" class="field-error">
+                  {{ loginForm.password().errors()[0]?.message }}
+                </p>
+              }
+              @if (capsLock()) {
+                <p
+                  id="caps-warning"
+                  class="text-warn mt-1.5 flex items-center gap-1 text-xs font-medium"
+                >
+                  <app-icon name="alert" [size]="14" /> Caps Lock is on
+                </p>
+              }
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary submit press min-h-11 w-full"
+            [class.is-loading]="loading()"
+            [disabled]="locked() || loading()"
+            [attr.aria-busy]="loading()"
+          >
+            @if (loading()) {
+              <span class="spinner" aria-hidden="true"></span>
+              Signing in...
+            } @else if (locked()) {
+              Locked ({{ lockSeconds() }}s)
+            } @else {
+              Sign in
+            }
+          </button>
+        </form>
+      </div>
+
+      <div class="demo-hint mt-5 flex items-center gap-3 rounded-lg p-3 text-sm">
+        <span class="demo-tile" aria-hidden="true"><app-icon name="shield" [size]="18" /></span>
+        <p class="text-ink-2">
+          Demo account: <code class="num text-ink">admin</code> /
+          <code class="num text-ink">admin123</code>
+        </p>
+      </div>
+    </div>
+  </main>
+</div>
