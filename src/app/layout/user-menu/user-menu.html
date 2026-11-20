@@ -1,0 +1,61 @@
+<button
+  #trigger
+  type="button"
+  class="hover:bg-surface-2 flex min-h-11 w-full items-center gap-3 rounded-lg px-2 py-1.5 text-left transition-colors"
+  aria-haspopup="menu"
+  aria-controls="user-menu-popover"
+  [attr.aria-expanded]="open()"
+  (click)="toggle()"
+  (keydown)="onTriggerKey($event)"
+>
+  <span
+    class="bg-brand-soft text-brand flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
+    aria-hidden="true"
+    >{{ initial() }}</span
+  >
+  <span class="min-w-0 flex-1 truncate text-sm font-medium">{{ username() }}</span>
+  <app-icon
+    name="chevron-down"
+    [size]="16"
+    class="text-ink-3 shrink-0 transition-transform duration-200"
+    [class.rotate-180]="open()"
+  />
+</button>
+
+@if (open()) {
+  <div
+    #menu
+    id="user-menu-popover"
+    role="menu"
+    tabindex="-1"
+    aria-label="Account"
+    class="pop-enter border-line bg-surface absolute right-0 bottom-full left-0 z-50 mb-2 min-w-44 rounded-lg border p-1"
+    style="box-shadow: var(--shadow-pop); transform-origin: bottom center"
+    (keydown)="onMenuKey($event)"
+  >
+    <button
+      type="button"
+      role="menuitem"
+      tabindex="-1"
+      class="menu-item hover:bg-surface-2 text-ink flex min-h-11 w-full items-center gap-3 rounded-md px-3 text-left text-sm whitespace-nowrap"
+      [attr.aria-label]="isDark() ? 'Switch to light theme' : 'Switch to dark theme'"
+      (click)="toggleTheme()"
+    >
+      <span class="theme-swap" [class.is-dark]="isDark()" aria-hidden="true">
+        <app-icon class="t-sun" name="sun" [size]="18" />
+        <app-icon class="t-moon" name="moon" [size]="18" />
+      </span>
+      {{ isDark() ? 'Light theme' : 'Dark theme' }}
+    </button>
+    <button
+      type="button"
+      role="menuitem"
+      tabindex="-1"
+      class="menu-item hover:bg-surface-2 text-ink flex min-h-11 w-full items-center gap-3 rounded-md px-3 text-left text-sm whitespace-nowrap"
+      (click)="requestSignOut()"
+    >
+      <app-icon name="logout" [size]="18" />
+      Sign out
+    </button>
+  </div>
+}
