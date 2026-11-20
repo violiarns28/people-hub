@@ -34,7 +34,8 @@ test.describe('masked values are never clipped', () => {
       if (width >= 1440) {
         const wrap = page.locator('.table-wrap');
         const [scroll, client] = await wrap.evaluate((el) => [el.scrollWidth, el.clientWidth]);
-        expect(scroll, 'table scrolls inside its wrapper').toBeLessThanOrEqual(client + 1);
+        // 2px slack covers subpixel rounding and the vertical scrollbar in CI.
+        expect(scroll, 'table scrolls inside its wrapper').toBeLessThanOrEqual(client + 2);
       } else {
         const overflow = await page.getByTestId('employee-card').evaluateAll((cards) =>
           cards.flatMap((card, index) => {
@@ -55,7 +56,7 @@ test.describe('masked values are never clipped', () => {
     const [scroll, client] = await page
       .locator('.table-wrap')
       .evaluate((el) => [el.scrollWidth, el.clientWidth]);
-    expect(scroll).toBeLessThanOrEqual(client + 1);
+    expect(scroll).toBeLessThanOrEqual(client + 2);
   });
 
   test('the mask has the same length as the value and keeps the email shape', async ({ page }) => {
