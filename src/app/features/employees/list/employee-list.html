@@ -1,0 +1,365 @@
+<div class="mx-auto max-w-[96rem] py-2">
+  <header class="flex flex-wrap items-end justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <span
+        class="bg-brand-soft text-brand flex size-11 shrink-0 items-center justify-center rounded-lg"
+        aria-hidden="true"
+      >
+        <app-icon name="users" [size]="22" />
+      </span>
+      <div>
+        <h1 class="text-ink text-2xl font-semibold">Employees</h1>
+        <p class="text-ink-2 num text-sm" data-testid="count">
+          @for (text of [countText()]; track text) {
+            <span class="count-tick inline-block">{{ text }}</span>
+          }
+        </p>
+      </div>
+    </div>
+    <a routerLink="/employees/add" class="btn btn-primary add-btn min-h-11">
+      <app-icon name="plus" [size]="16" class="add-plus" />
+      Add employee
+    </a>
+  </header>
+
+  <section class="card mt-4 flex flex-wrap items-center gap-2 p-3" aria-label="Filters">
+    <div class="relative min-w-[14rem] flex-1 basis-full sm:basis-auto">
+      <label class="sr-only" for="search">Search</label>
+      <input
+        id="search"
+        type="search"
+        class="input pr-10 [&::-webkit-search-cancel-button]:appearance-none"
+        placeholder="Search name, username or email"
+        autocomplete="off"
+        [value]="searchText()"
+        (input)="onSearch($event)"
+      />
+      @if (searchText() !== '') {
+        <button
+          type="button"
+          class="search-clear text-ink-3 hover:text-ink hover:bg-surface-2 absolute top-1/2 right-1.5 flex size-8 -translate-y-1/2 items-center justify-center rounded-lg"
+          aria-label="Clear search"
+          (click)="clearSearch()"
+        >
+          <app-icon name="x" [size]="14" />
+        </button>
+      }
+    </div>
+    <div class="min-w-0 flex-1 basis-[calc(50%-0.25rem)] sm:w-48 sm:flex-none sm:basis-auto">
+      <app-select
+        inputId="groupFilter"
+        ariaLabel="Group"
+        [emphasize]="true"
+        [options]="groupOptions"
+        [value]="group()"
+        (valueChange)="onGroupChange($event)"
+      />
+    </div>
+    <div class="min-w-0 flex-1 basis-[calc(50%-0.25rem)] sm:w-40 sm:flex-none sm:basis-auto">
+      <app-select
+        inputId="statusFilter"
+        ariaLabel="Status"
+        [emphasize]="true"
+        [options]="statusOptions"
+        [value]="status()"
+        (valueChange)="onStatusChange($event)"
+      />
+    </div>
+    <div class="flex min-w-0 flex-1 basis-full items-center gap-2 md:hidden">
+      <div class="min-w-0 flex-1">
+        <app-select
+          class="block w-full"
+          inputId="sortBy"
+          ariaLabel="Sort by"
+          [options]="sortOptions"
+          [value]="sort()"
+          (valueChange)="onSortSelect($event)"
+        />
+      </div>
+      <button
+        type="button"
+        class="btn btn-secondary btn-icon min-h-11 min-w-11"
+        [disabled]="!sort()"
+        [attr.aria-label]="
+          !sort()
+            ? 'Sort direction, choose a column first'
+            : dir() === 'asc'
+              ? 'Sorted ascending, switch to descending'
+              : 'Sorted descending, clear sorting'
+        "
+        (click)="cycleSortDirection()"
+      >
+        <app-icon
+          [name]="!sort() ? 'chevrons-up-down' : dir() === 'asc' ? 'chevron-up' : 'chevron-down'"
+          [size]="16"
+        />
+      </button>
+    </div>
+    <button
+      type="button"
+      class="btn btn-ghost clear-btn min-h-11 shrink-0 whitespace-nowrap md:min-h-10"
+      aria-label="Clear filters"
+      [class.invisible]="!hasFilters()"
+      [class.max-md:hidden]="!hasFilters()"
+      [disabled]="!hasFilters()"
+      (click)="clearAll()"
+    >
+      <app-icon name="x" [size]="14" />
+      Clear
+    </button>
+    <button
+      type="button"
+      role="switch"
+      class="switch btn btn-secondary min-h-11 shrink-0 whitespace-nowrap md:min-h-10"
+      title="Reveals all sensitive values. They hide again after 30 seconds."
+      aria-description="Hides again after 30 seconds"
+      [class.border-brand]="privacy.revealAll()"
+      [class.bg-brand-soft]="privacy.revealAll()"
+      [attr.aria-checked]="privacy.revealAll()"
+      (click)="privacy.toggleAll()"
+    >
+      <app-icon [name]="privacy.revealAll() ? 'eye-off' : 'eye'" [size]="16" />
+      <span>Reveal sensitive data</span>
+      <span
+        class="bg-line relative h-4 w-7 shrink-0 rounded-full transition-colors duration-200"
+        [class.bg-brand]="privacy.revealAll()"
+        aria-hidden="true"
+      >
+        <span
+          class="switch-knob bg-surface absolute top-0.5 left-0.5 size-3 rounded-full"
+          [class.translate-x-3]="privacy.revealAll()"
+        ></span>
+      </span>
+    </button>
+  </section>
+
+  <section class="card mt-4 overflow-hidden" aria-label="Employee list">
+    @if (rows().length === 0) {
+      <div class="px-6 py-12 text-center">
+        <app-illustration name="empty" [size]="140" />
+        <p class="text-ink mt-2 font-medium">No employees match your filters.</p>
+        <button type="button" class="btn btn-secondary mt-4 min-h-11" (click)="clearAll()">
+          Reset filters
+        </button>
+      </div>
+    } @else {
+      <div class="table-wrap overflow-x-auto overflow-y-auto max-md:hidden">
+        <table class="w-full border-collapse text-xs min-[1440px]:text-[13px]">
+          <thead class="bg-surface-2 sticky top-0 z-10 text-left">
+            <tr class="border-line border-b">
+              @for (col of columns; track col.key) {
+                <th
+                  scope="col"
+                  class="text-ink-3 px-1.5 py-3 text-xs font-semibold tracking-wide uppercase first:pl-3"
+                  [attr.aria-sort]="ariaSort(col.key)"
+                >
+                  <button
+                    type="button"
+                    class="sort-btn hover:text-ink hover:bg-brand-soft -mx-2 inline-flex min-h-9 items-center gap-1 rounded-md px-2 uppercase transition-colors duration-150"
+                    (click)="onSort(col.key)"
+                  >
+                    {{ col.label }}
+                    <span
+                      class="sort-chevron"
+                      [attr.data-active]="sort() === col.key"
+                      [attr.data-dir]="sort() === col.key ? dir() : 'asc'"
+                      aria-hidden="true"
+                    >
+                      <app-icon
+                        [name]="sort() === col.key ? 'chevron-up' : 'chevrons-up-down'"
+                        [size]="14"
+                      />
+                    </span>
+                  </button>
+                </th>
+              }
+              <th
+                scope="col"
+                class="actions-head text-ink-3 py-3 pr-3 pl-1.5 text-right text-xs font-semibold tracking-wide uppercase"
+              >
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of rows(); track e.username) {
+              <tr class="row" animate.leave="row-leave" [class.row-flash]="lastChanged().has(e)">
+                <td class="py-2.5 pr-1.5 pl-3" data-label="Name">
+                  <div class="flex items-center gap-3">
+                    <span
+                      class="bg-brand-soft text-brand hidden size-9 2xl:flex shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+                      aria-hidden="true"
+                      >{{ initials(e) }}</span
+                    >
+                    <div class="min-w-0">
+                      <div class="text-ink font-medium">{{ fullName(e) }}</div>
+                      <div class="num text-ink-3 text-xs">{{ e.username }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-1.5 py-2.5" data-label="Email">
+                  <app-masked-value [subject]="e.username" field="email" [value]="e.email" />
+                </td>
+                <td class="px-1.5 py-2.5" data-label="Birth date">
+                  <app-masked-value
+                    [subject]="e.username"
+                    field="birthDate"
+                    [value]="(e.birthDate | date: 'dd MMM yyyy') ?? ''"
+                  />
+                </td>
+                <td class="px-1.5 py-2.5" data-label="Basic salary">
+                  <app-masked-value
+                    [subject]="e.username"
+                    field="basicSalary"
+                    [value]="e.basicSalary | rupiah"
+                  />
+                </td>
+                <td class="text-ink-2 px-1.5 py-2.5" data-label="Group">{{ e.group }}</td>
+                <td class="px-1.5 py-3" data-label="Status">
+                  <span [class]="statusClass(e.status)">{{ e.status }}</span>
+                </td>
+                <td class="actions py-2.5 pr-3 pl-1.5">
+                  <div class="act-row">
+                    <a
+                      class="act bg-neutral-soft text-ink-2 hover:brightness-95"
+                      [routerLink]="['/employees', e.username]"
+                      queryParamsHandling="preserve"
+                      [attr.aria-label]="'Detail ' + fullName(e)"
+                      [attr.title]="'Detail ' + fullName(e)"
+                    >
+                      <span class="act-icon act-detail"
+                        ><app-icon name="chevron-right" [size]="16"
+                      /></span>
+                      <span class="act-label"><span class="act-text">Detail</span></span>
+                    </a>
+                    <button
+                      type="button"
+                      class="act bg-warn-soft text-warn hover:brightness-95"
+                      [attr.aria-label]="'Edit ' + fullName(e)"
+                      [attr.title]="'Edit ' + fullName(e)"
+                      (click)="onEdit(e)"
+                    >
+                      <span class="act-icon act-edit"><app-icon name="pencil" [size]="16" /></span>
+                      <span class="act-label"><span class="act-text">Edit</span></span>
+                    </button>
+                    <button
+                      type="button"
+                      class="act bg-bad-soft text-bad hover:brightness-95"
+                      [attr.aria-label]="'Delete ' + fullName(e)"
+                      [attr.title]="'Delete ' + fullName(e)"
+                      (click)="onDelete(e)"
+                    >
+                      <span class="act-icon act-trash"><app-icon name="trash" [size]="16" /></span>
+                      <span class="act-label"><span class="act-text">Delete</span></span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <ul class="m-0 list-none p-0 md:hidden" data-testid="mobile-list">
+        @for (e of rows(); track e.username) {
+          <li
+            animate.leave="card-leave"
+            class="border-line flex flex-col gap-1 border-b p-3 last:border-b-0"
+            [class.row-flash]="lastChanged().has(e)"
+            data-testid="employee-card"
+          >
+            <div class="flex items-center gap-2">
+              <span
+                class="bg-brand-soft text-brand flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+                aria-hidden="true"
+                >{{ initials(e) }}</span
+              >
+              <div class="flex min-w-0 flex-1 items-baseline gap-2">
+                <span class="text-ink text-sm leading-tight font-medium">{{ fullName(e) }}</span>
+                <span class="num text-ink-3 truncate font-mono text-[11px]"
+                  >&#64;{{ e.username }}</span
+                >
+              </div>
+              <span [class]="statusClass(e.status)">{{ e.status }}</span>
+            </div>
+            <app-masked-value [subject]="e.username" field="email" [value]="e.email" />
+            <div class="grid grid-cols-[auto_auto] justify-start gap-x-4 text-[13px]">
+              <div class="min-w-0">
+                <div class="text-ink-3 text-[11px] leading-4 font-semibold tracking-wide uppercase">
+                  Salary
+                </div>
+                <app-masked-value
+                  [subject]="e.username"
+                  field="basicSalary"
+                  [value]="e.basicSalary | rupiah"
+                />
+              </div>
+              <div class="min-w-0">
+                <div class="text-ink-3 text-[11px] leading-4 font-semibold tracking-wide uppercase">
+                  Birth date
+                </div>
+                <app-masked-value
+                  [subject]="e.username"
+                  field="birthDate"
+                  [value]="(e.birthDate | date: 'dd MMM yyyy') ?? ''"
+                />
+              </div>
+            </div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-ink-2 min-w-0 truncate text-[13px]">{{ e.group }}</span>
+              <div class="flex shrink-0 items-center">
+                <a
+                  class="m-act bg-neutral-soft text-ink-2 inline-flex size-11 items-center justify-center rounded-lg"
+                  [routerLink]="['/employees', e.username]"
+                  queryParamsHandling="preserve"
+                  [attr.aria-label]="'Detail ' + fullName(e)"
+                  [attr.title]="'Detail ' + fullName(e)"
+                >
+                  <app-icon name="chevron-right" [size]="18" />
+                </a>
+                <button
+                  type="button"
+                  class="m-act bg-warn-soft text-warn ml-1 inline-flex size-11 items-center justify-center rounded-lg"
+                  [attr.aria-label]="'Edit ' + fullName(e)"
+                  [attr.title]="'Edit ' + fullName(e)"
+                  (click)="onEdit(e)"
+                >
+                  <app-icon name="pencil" [size]="18" />
+                </button>
+                <button
+                  type="button"
+                  class="m-act bg-bad-soft text-bad ml-1 inline-flex size-11 items-center justify-center rounded-lg"
+                  [attr.aria-label]="'Delete ' + fullName(e)"
+                  [attr.title]="'Delete ' + fullName(e)"
+                  (click)="onDelete(e)"
+                >
+                  <app-icon name="trash" [size]="18" />
+                </button>
+              </div>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+    <div class="border-line border-t px-3 py-2 sm:px-4 sm:py-3">
+      <app-pagination
+        [page]="currentPage()"
+        [pages]="pages()"
+        [total]="total()"
+        [pageSize]="pageSize()"
+        [pageSizes]="pageSizes"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+      />
+    </div>
+  </section>
+</div>
+
+<app-confirm-dialog
+  [(open)]="confirmOpen"
+  title="Delete employee"
+  [message]="deleteMessage()"
+  confirmLabel="Delete"
+  tone="danger"
+  (confirmed)="confirmDelete()"
+  (cancelled)="deleteTarget.set(null)"
+/>
