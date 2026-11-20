@@ -9,7 +9,8 @@
     "test": "ng test",
     "test:coverage": "ng test --watch=false --coverage",
     "test:e2e": "playwright test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "ci": "npm run lint && npm run test:coverage && npm run build"
   },
   "private": true,
   "packageManager": "npm@11.6.2",

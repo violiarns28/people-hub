@@ -1,3 +1,5 @@
+[![CI](https://github.com/violiarns28/people-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/violiarns28/people-hub/actions/workflows/ci.yml)
+
 # PeopleHub
 
 PeopleHub is an employee directory built with Angular 22 and Tailwind CSS v4. You can sign in, search and sort a list of employees, add, edit and delete them, and open a detail page. Personal data is masked until you choose to reveal it.
@@ -86,6 +88,10 @@ Masking here is only a UI feature. There is no backend, employee data sits in `l
 
 - Node.js 22 or newer and npm 10 or newer.
 - Last tested with Node.js v25.1.0 and npm 11.6.2.
+
+## CI/CD
+
+GitHub Actions (`.github/workflows/ci.yml`) runs lint, Prettier, unit tests, build and Playwright e2e on every PR and push to `main`. Pushes to `main` that pass deploy to GitHub Pages. Run the same checks locally with `npm run ci`.
 
 ## How to run
 
