@@ -1,3 +1,338 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+@source not "../e2e";
+
+/*
+ * Design tokens: neutral greys, one green accent, red for danger, yellow for warnings.
+ * Use the tokens (bg-surface, text-ink, ...) and light/dark take care of themselves.
+ */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+@theme {
+  --font-display: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --color-canvas: var(--c-canvas);
+  --color-surface: var(--c-surface);
+  --color-surface-2: var(--c-surface-2);
+  --color-line: var(--c-line);
+  --color-ink: var(--c-ink);
+  --color-ink-2: var(--c-ink-2);
+  --color-ink-3: var(--c-ink-3);
+  --color-brand: var(--c-brand);
+  --color-brand-hover: var(--c-brand-hover);
+  --color-brand-soft: var(--c-brand-soft);
+  --color-on-brand: var(--c-on-brand);
+  --color-brass: var(--c-brass);
+  --color-ok: var(--c-ok);
+  --color-ok-soft: var(--c-ok-soft);
+  --color-warn: var(--c-warn);
+  --color-warn-soft: var(--c-warn-soft);
+  --color-bad: var(--c-bad);
+  --color-bad-soft: var(--c-bad-soft);
+  --color-neutral-soft: var(--c-neutral-soft);
+  --color-info: var(--c-info);
+  --color-info-soft: var(--c-info-soft);
+
+  --shadow-card: none;
+  --shadow-pop: 0 8px 24px -6px rgb(0 0 0 / 0.18), 0 2px 6px rgb(0 0 0 / 0.08);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root {
+  --c-canvas: #f5f6f7;
+  --c-surface: #ffffff;
+  --c-surface-2: #f0f2f3;
+  --c-line: #dfe3e6;
+  --c-ink: #16191c;
+  --c-ink-2: #454c52;
+  --c-ink-3: #666e75;
+  --c-brand: #15803d;
+  --c-brand-hover: #116b32;
+  --c-brand-soft: #e3f3e8;
+  --c-on-brand: #ffffff;
+  --c-brass: var(--c-brand);
+  --c-ok: var(--c-brand);
+  --c-ok-soft: var(--c-brand-soft);
+  --c-warn: #8a5a00;
+  --c-warn-soft: #fbeccb;
+  --c-bad: #b42318;
+  --c-bad-soft: #fde4e1;
+  --c-neutral-soft: color-mix(in oklab, var(--c-ink) 9%, var(--c-surface));
+  --c-info: var(--c-ink-2);
+  --c-info-soft: var(--c-surface-2);
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --c-canvas: #111315;
+  --c-surface: #1a1d20;
+  --c-surface-2: #222629;
+  --c-line: #31363a;
+  --c-ink: #eceff1;
+  --c-ink-2: #b6bdc2;
+  --c-ink-3: #8c949a;
+  --c-brand: #3fa968;
+  --c-brand-hover: #56bb7d;
+  --c-brand-soft: #16301f;
+  --c-on-brand: #07140c;
+  --c-brass: var(--c-brand);
+  --c-ok: var(--c-brand);
+  --c-ok-soft: var(--c-brand-soft);
+  --c-warn: #f0c36b;
+  --c-warn-soft: #3a2d10;
+  --c-bad: #f5a09a;
+  --c-bad-soft: #3b1b19;
+  --c-neutral-soft: color-mix(in oklab, var(--c-ink) 12%, var(--c-surface));
+  --c-info: var(--c-ink-2);
+  --c-info-soft: var(--c-surface-2);
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-canvas text-ink min-h-dvh font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-sans font-semibold tracking-tight;
+  }
+
+  :focus-visible {
+    @apply outline-brand outline-2 outline-offset-2;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--c-brand) 30%, transparent);
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition duration-150 ease-out select-none active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-brand text-on-brand hover:bg-brand-hover;
+  }
+  .btn-secondary {
+    @apply border-line bg-surface text-ink hover:bg-surface-2 border;
+  }
+  .btn-ghost {
+    @apply text-ink-2 hover:bg-surface-2 hover:text-ink;
+  }
+  .btn-sm {
+    @apply min-h-8 rounded-lg px-3 text-xs;
+  }
+  .btn-icon {
+    @apply inline-flex size-9 items-center justify-center rounded-lg transition duration-150 active:scale-90;
+  }
+
+  .card {
+    @apply border-line bg-surface rounded-lg border;
+  }
+
+  .label {
+    @apply text-ink-2 mb-1.5 block text-sm font-medium;
+  }
+  .input {
+    @apply border-line bg-surface text-ink placeholder:text-ink-3 focus:border-brand focus:ring-brand/20 min-h-11 w-full rounded-lg border px-3.5 text-sm transition outline-none focus:ring-[3px] disabled:opacity-60;
+  }
+  .input[aria-invalid='true'] {
+    @apply border-bad focus:ring-bad/20;
+  }
+  .field-error {
+    @apply text-bad mt-1.5 flex items-center gap-1 text-xs font-medium;
+  }
+
+  .badge {
+    @apply border-line bg-surface-2 text-ink inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium;
+  }
+  .badge::before {
+    content: '';
+    @apply size-1.5 rounded-full;
+    background: var(--badge-dot, var(--c-ink-3));
+  }
+  .badge-permanent {
+    --badge-dot: var(--c-brand);
+  }
+  .badge-contract {
+    --badge-dot: var(--c-ink-2);
+  }
+  .badge-probation {
+    --badge-dot: var(--c-warn);
+  }
+  .badge-intern {
+    --badge-dot: var(--c-ink-3);
+  }
+
+  .num {
+    @apply font-mono tabular-nums;
+  }
+}
+
+/* Dot grid: plain SVG circles in a data URI, no fades. Login panel and empty states only. */
+.dot-grid {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='2' cy='2' r='1.5' fill='%2316191c' fill-opacity='0.14'/%3E%3C/svg%3E");
+  background-size: 24px 24px;
+}
+[data-theme='dark'] .dot-grid {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='2' cy='2' r='1.5' fill='%23eceff1' fill-opacity='0.14'/%3E%3C/svg%3E");
+}
+.dot-grid-on-brand {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='2' cy='2' r='1.5' fill='%23ffffff' fill-opacity='0.28'/%3E%3C/svg%3E");
+  background-size: 24px 24px;
+}
+[data-theme='dark'] .dot-grid-on-brand {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='2' cy='2' r='1.5' fill='%2307140c' fill-opacity='0.22'/%3E%3C/svg%3E");
+}
+
+/* Entrance keyframes, used by animate.enter / animate.leave and the utility classes below. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.96);
+  }
+}
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-4px);
+  }
+}
+
+.rise-in {
+  animation: rise-in 0.25s var(--ease-out-quint) both;
+}
+.toast-enter {
+  animation: toast-in 0.3s var(--ease-out-quint) both;
+}
+.toast-leave {
+  animation: toast-out 0.2s ease-in both;
+}
+.pop-enter {
+  animation: pop-in 0.16s var(--ease-out-quint) both;
+}
+
+/*
+ * Small interaction helpers. Transform, opacity and colour only, 120 to 220ms.
+ * Everything is wrapped in prefers-reduced-motion: no-preference, so nobody who opted out sees it.
+ *
+ *   .press       active scale .97 (buttons, tiles)
+ *   .lift        hover translateY(-1px) and brand border colour (cards, rows)
+ *   .nudge-r     hover moves the child icon (app-icon, svg or .ico) 3px right (next, forward links)
+ *   .nudge-l     same, to the left (back links)
+ *   .tilt        hover rotates the element 12deg (add, settings icons)
+ *   .pop         scale-in entrance (badges, check marks)
+ *   .slide-down  fade and slide down entrance (banners, panels)
+ *   .shake-once  one 320ms horizontal shake (errors)
+ *   .pulse-once  one soft scale pulse (notices)
+ */
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+@keyframes shake-once {
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+@keyframes pulse-once {
+  40% {
+    transform: scale(1.02);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .press {
+    transition: transform 0.12s ease-out;
+  }
+  .press:active {
+    transform: scale(0.97);
+  }
+  .lift {
+    transition:
+      transform 0.16s ease-out,
+      border-color 0.16s ease-out;
+  }
+  .lift:hover {
+    transform: translateY(-1px);
+    border-color: var(--c-brand);
+  }
+  .nudge-r :is(app-icon, svg, .ico),
+  .nudge-l :is(app-icon, svg, .ico) {
+    transition: transform 0.16s ease-out;
+  }
+  .nudge-r:hover :is(app-icon, svg, .ico) {
+    transform: translateX(3px);
+  }
+  .nudge-l:hover :is(app-icon, svg, .ico) {
+    transform: translateX(-3px);
+  }
+  .tilt {
+    transition: transform 0.18s ease-out;
+  }
+  .tilt:hover {
+    transform: rotate(12deg);
+  }
+  .pop {
+    animation: pop 0.2s var(--ease-out-quint) both;
+  }
+  .slide-down {
+    animation: slide-down 0.22s var(--ease-out-quint) both;
+  }
+  .shake-once {
+    animation: shake-once 0.32s ease-out both;
+  }
+  .pulse-once {
+    animation: pulse-once 0.5s ease-out 1 both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.18s;
+}
