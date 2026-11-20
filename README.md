@@ -91,7 +91,16 @@ Masking here is only a UI feature. There is no backend, employee data sits in `l
 
 ## CI/CD
 
-GitHub Actions (`.github/workflows/ci.yml`) runs lint, Prettier, unit tests, build and Playwright e2e on every PR and push to `main`. Pushes to `main` that pass deploy to GitHub Pages. Run the same checks locally with `npm run ci`.
+- `.github/workflows/ci.yml` runs lint, Prettier, unit tests and build on every pull request.
+- `.github/workflows/deploy.yml` runs on push to `main` and `release/**`. It reruns CI, runs Playwright e2e, then deploys to GitHub Pages: https://violiarns28.github.io/people-hub/
+- Other branches and PRs never deploy.
+- Run the same checks locally with `npm run ci`.
+
+One-time repo setup:
+
+1. Settings → Pages → Source: **GitHub Actions**.
+2. Settings → Environments → `github-pages` → Deployment branches: **Selected branches** → `main` and `release/**`. This enforces the branch rule server-side.
+3. Branch protection on `main`: require PR and the `lint`, `unit`, `build`, `e2e` checks.
 
 ## How to run
 
