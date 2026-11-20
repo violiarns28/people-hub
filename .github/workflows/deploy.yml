@@ -80,7 +80,7 @@ jobs:
           for f in dist/*/browser/index.html; do
             cp "$f" "${f%index.html}404.html"
           done
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist/${{ github.event.repository.name }}/browser
       - id: deployment
