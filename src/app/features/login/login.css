@@ -1,0 +1,153 @@
+:host {
+  display: block;
+}
+
+.brand-mark {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  background: var(--c-brand);
+  color: var(--c-on-brand);
+}
+
+/* Light uses the plain brand colour. In dark the bright fill is too loud next to the form, so
+   it becomes a deep green with light text. */
+.brand-panel {
+  background: light-dark(var(--c-brand), color-mix(in oklab, var(--c-brand) 34%, var(--c-canvas)));
+  color: light-dark(var(--c-on-brand), var(--c-ink));
+}
+
+.brand-panel .brand-mark {
+  background: light-dark(var(--c-on-brand), var(--c-brand));
+  color: light-dark(var(--c-brand), var(--c-on-brand));
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.accent-line {
+  width: 3rem;
+  height: 4px;
+  border-radius: 9999px;
+  background: light-dark(var(--c-on-brand), var(--c-brand));
+}
+.panel-muted {
+  color: light-dark(var(--c-on-brand), var(--c-ink-2));
+  opacity: 0.82;
+}
+.panel-rule {
+  border-top: 1px solid var(--c-on-brand);
+  border-top-color: color-mix(
+    in srgb,
+    light-dark(var(--c-on-brand), var(--c-ink)) 30%,
+    transparent
+  );
+}
+.value-tile {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  background: light-dark(var(--c-on-brand), var(--c-brand));
+  color: light-dark(var(--c-brand), var(--c-on-brand));
+}
+.demo-hint {
+  border: 1px solid var(--c-line);
+  background: var(--c-surface);
+}
+.demo-tile {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  background: var(--c-brand-soft);
+  color: var(--c-brand);
+}
+
+.input {
+  transition:
+    border-color 0.16s ease-out,
+    box-shadow 0.16s ease-out;
+}
+
+.eye {
+  position: relative;
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+}
+.eye app-icon {
+  position: absolute;
+  inset: 0;
+  transition:
+    opacity 0.18s ease-out,
+    transform 0.18s ease-out;
+}
+.eye .eye-off {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+.eye .eye-on {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.6);
+}
+.eye.shown .eye-off {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.6);
+}
+.eye.shown .eye-on {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
+.submit {
+  transition:
+    background-color 0.15s,
+    transform 0.16s ease-out;
+}
+.submit.is-loading {
+  transform: scale(0.985);
+}
+
+.banner-error {
+  animation:
+    slide-down 0.22s var(--ease-out-quint) both,
+    shake-once 0.32s ease-out 0.22s both;
+}
+.banner-lock {
+  animation:
+    slide-down 0.22s var(--ease-out-quint) both,
+    pulse-once 0.5s ease-out 0.22s 1 both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eye app-icon,
+  .submit,
+  .input {
+    transition: none;
+  }
+  .banner-error,
+  .banner-lock {
+    animation: none;
+  }
+}
