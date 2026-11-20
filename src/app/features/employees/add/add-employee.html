@@ -1,0 +1,481 @@
+<div class="mx-auto max-w-6xl px-4 pt-6 pb-28 sm:px-6 sm:pb-10 lg:px-8">
+  <a
+    routerLink="/employees"
+    queryParamsHandling="preserve"
+    class="text-ink-2 hover:text-ink inline-flex min-h-11 items-center gap-1.5 text-sm font-medium"
+  >
+    <app-icon name="arrow-left" [size]="16" />
+    Back to employees
+  </a>
+
+  <header class="rise-in mt-2">
+    <h1 class="text-3xl font-semibold">{{ isEdit() ? 'Edit employee' : 'Add employee' }}</h1>
+    @if (!notFound()) {
+      <p class="text-ink-2 mt-1 text-sm">All fields are required.</p>
+    }
+  </header>
+
+  @if (notFound()) {
+    <div class="card mt-4 p-10 text-center">
+      <p class="text-xl font-semibold">Employee not found</p>
+      <p class="text-ink-2 mt-1 text-sm">
+        There is no employee with the username "{{ username() }}".
+      </p>
+      <button type="button" class="btn btn-primary mt-5 min-h-11" (click)="onBack()">
+        Back to list
+      </button>
+    </div>
+  } @else {
+    @let f = employeeForm;
+    <div class="mt-6 lg:flex lg:items-start lg:gap-6">
+      <form class="min-w-0 flex-1 space-y-5" novalidate (submit)="onSubmit($event)">
+        @if (submitAttempted() && issues().length > 0) {
+          <div
+            role="alert"
+            class="border-bad/40 bg-bad-soft text-bad rounded-lg border p-4 text-sm"
+            id="error-summary"
+          >
+            <p class="flex items-center gap-2 font-semibold">
+              <app-icon name="alert" [size]="16" />
+              Please fix {{ issues().length }}
+              {{ issues().length === 1 ? 'issue' : 'issues' }} before saving
+            </p>
+            <ul class="mt-2 list-inside list-disc space-y-1">
+              @for (issue of issues(); track issue.id) {
+                <li>
+                  <a
+                    [href]="'#' + issue.id"
+                    class="underline underline-offset-2"
+                    (click)="focusField(issue.id, $event)"
+                    >{{ issue.label }}</a>:
+                  {{ issue.message }}
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        <section
+          class="card sec-in rounded-lg p-5 sm:p-6"
+          style="--i: 0"
+          aria-labelledby="sec-identity"
+        >
+          <div class="mb-5 flex items-center gap-3">
+            <span
+              class="bg-brand-soft text-brand grid size-7 shrink-0 place-items-center rounded-lg"
+              aria-hidden="true"
+            >
+              <app-icon name="id-card" [size]="16" />
+            </span>
+            <h2 id="sec-identity" class="text-lg font-semibold">Identity</h2>
+            <span
+              class="chip ml-auto"
+              [class.done]="sec().identity.complete"
+              [attr.aria-label]="sec().identity.done + ' of ' + sec().identity.total + ' complete'"
+            >
+              @if (sec().identity.complete) {
+                <app-icon class="chip-check" name="check" [size]="12" />
+              }
+              <span class="num">{{ sec().identity.done }}/{{ sec().identity.total }}</span>
+            </span>
+          </div>
+          <div class="@container">
+            <div class="grid gap-x-5 gap-y-5 @md:grid-cols-2">
+              <div class="field" [class.shake]="shakeClass(f.username)">
+                <label class="label" for="username">Username</label>
+                <div class="control">
+                  <input
+                    id="username"
+                    placeholder="jane.doe"
+                    autocomplete="off"
+                    class="input pr-10"
+                    [class.opacity-70]="isEdit()"
+                    [attr.aria-readonly]="isEdit() ? 'true' : null"
+                    [formField]="f.username"
+                    [attr.aria-invalid]="errorOf(f.username) ? 'true' : null"
+                    [attr.aria-describedby]="describedBy(f.username, 'username')"
+                  />
+                  @if (isOk(f.username)) {
+                    <span class="tick" aria-hidden="true"
+                      ><app-icon name="check" [size]="16"
+                    /></span>
+                  }
+                </div>
+                @if (errorOf(f.username); as msg) {
+                  <p id="username-error" class="field-error err-in">
+                    <app-icon name="alert" [size]="14" />
+                    <span>{{ msg }}</span>
+                  </p>
+                }
+              </div>
+              <div class="field" [class.shake]="shakeClass(f.email)">
+                <label class="label" for="email">Email</label>
+                <div class="control">
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="jane.doe@peoplehub.dev"
+                    autocomplete="off"
+                    class="input pr-10"
+                    [formField]="f.email"
+                    [attr.aria-invalid]="errorOf(f.email) ? 'true' : null"
+                    [attr.aria-describedby]="describedBy(f.email, 'email')"
+                  />
+                  @if (isOk(f.email)) {
+                    <span class="tick" aria-hidden="true"
+                      ><app-icon name="check" [size]="16"
+                    /></span>
+                  }
+                </div>
+                @if (errorOf(f.email); as msg) {
+                  <p id="email-error" class="field-error err-in">
+                    <app-icon name="alert" [size]="14" />
+                    <span>{{ msg }}</span>
+                  </p>
+                }
+              </div>
+              <div class="field" [class.shake]="shakeClass(f.firstName)">
+                <label class="label" for="firstName">First name</label>
+                <div class="control">
+                  <input
+                    id="firstName"
+                    placeholder="Jane"
+                    autocomplete="off"
+                    class="input pr-10"
+                    [formField]="f.firstName"
+                    [attr.aria-invalid]="errorOf(f.firstName) ? 'true' : null"
+                    [attr.aria-describedby]="describedBy(f.firstName, 'firstName')"
+                  />
+                  @if (isOk(f.firstName)) {
+                    <span class="tick" aria-hidden="true"
+                      ><app-icon name="check" [size]="16"
+                    /></span>
+                  }
+                </div>
+                @if (errorOf(f.firstName); as msg) {
+                  <p id="firstName-error" class="field-error err-in">
+                    <app-icon name="alert" [size]="14" />
+                    <span>{{ msg }}</span>
+                  </p>
+                }
+              </div>
+              <div class="field" [class.shake]="shakeClass(f.lastName)">
+                <label class="label" for="lastName">Last name</label>
+                <div class="control">
+                  <input
+                    id="lastName"
+                    placeholder="Doe"
+                    autocomplete="off"
+                    class="input pr-10"
+                    [formField]="f.lastName"
+                    [attr.aria-invalid]="errorOf(f.lastName) ? 'true' : null"
+                    [attr.aria-describedby]="describedBy(f.lastName, 'lastName')"
+                  />
+                  @if (isOk(f.lastName)) {
+                    <span class="tick" aria-hidden="true"
+                      ><app-icon name="check" [size]="16"
+                    /></span>
+                  }
+                </div>
+                @if (errorOf(f.lastName); as msg) {
+                  <p id="lastName-error" class="field-error err-in">
+                    <app-icon name="alert" [size]="14" />
+                    <span>{{ msg }}</span>
+                  </p>
+                }
+              </div>
+              <div class="field" [class.shake]="shakeClass(f.birthDate)">
+                <label class="label" for="birthDate">Birth date</label>
+                <app-date-picker
+                  inputId="birthDate"
+                  ariaLabel="Birth date"
+                  [formField]="f.birthDate"
+                />
+                @if (errorOf(f.birthDate); as msg) {
+                  <p id="birthDate-error" class="field-error err-in">
+                    <app-icon name="alert" [size]="14" />
+                    <span>{{ msg }}</span>
+                  </p>
+                }
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="card sec-in rounded-lg p-5 sm:p-6"
+          style="--i: 1"
+          aria-labelledby="sec-employment"
+        >
+          <div class="mb-5 flex items-center gap-3">
+            <span
+              class="bg-brand-soft text-brand grid size-7 shrink-0 place-items-center rounded-lg"
+              aria-hidden="true"
+            >
+              <app-icon name="briefcase" [size]="16" />
+            </span>
+            <h2 id="sec-employment" class="text-lg font-semibold">Employment</h2>
+            <span
+              class="chip ml-auto"
+              [class.done]="sec().employment.complete"
+              [attr.aria-label]="
+                sec().employment.done + ' of ' + sec().employment.total + ' complete'
+              "
+            >
+              @if (sec().employment.complete) {
+                <app-icon class="chip-check" name="check" [size]="12" />
+              }
+              <span class="num">{{ sec().employment.done }}/{{ sec().employment.total }}</span>
+            </span>
+          </div>
+          <div class="@container">
+            <div class="grid gap-x-5 gap-y-5 @md:grid-cols-2">
+              <div class="field" [class.shake]="shakeClass(f.status)">
+                <label class="label" for="status">Status</label>
+                <app-select
+                  inputId="status"
+                  placeholder="Select a status"
+                  [options]="statuses"
+                  [formField]="f.status"
+                />
+                @if (errorOf(f.status); as msg) {
+                  <p id="status-error" class="field-error err-in">
+                    <app-icon name="alert" [size]="14" />
+                    <span>{{ msg }}</span>
+                  </p>
+                }
+              </div>
+              <div class="field" [class.shake]="shakeClass(f.group)">
+                <label class="label" for="group">Group</label>
+                <app-select
+                  [searchable]="true"
+                  inputId="group"
+                  placeholder="Select a group"
+                  [options]="groups"
+                  [formField]="f.group"
+                />
+                @if (errorOf(f.group); as msg) {
+                  <p id="group-error" class="field-error err-in">
+                    <app-icon name="alert" [size]="14" />
+                    <span>{{ msg }}</span>
+                  </p>
+                }
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="card sec-in rounded-lg p-5 sm:p-6"
+          style="--i: 2"
+          aria-labelledby="sec-compensation"
+        >
+          <div class="mb-5 flex items-center gap-3">
+            <span
+              class="bg-brand-soft text-brand grid size-7 shrink-0 place-items-center rounded-lg"
+              aria-hidden="true"
+            >
+              <app-icon name="coins" [size]="16" />
+            </span>
+            <h2 id="sec-compensation" class="text-lg font-semibold">Compensation</h2>
+            <span
+              class="chip ml-auto"
+              [class.done]="sec().compensation.complete"
+              [attr.aria-label]="
+                sec().compensation.done + ' of ' + sec().compensation.total + ' complete'
+              "
+            >
+              @if (sec().compensation.complete) {
+                <app-icon class="chip-check" name="check" [size]="12" />
+              }
+              <span class="num">{{ sec().compensation.done }}/{{ sec().compensation.total }}</span>
+            </span>
+          </div>
+          <div class="field" [class.shake]="shakeClass(f.basicSalary)">
+            <label class="label" for="basicSalary">Basic salary (IDR)</label>
+            <app-currency-input [formField]="f.basicSalary" inputId="basicSalary" />
+            @if (errorOf(f.basicSalary); as msg) {
+              <p id="basicSalary-error" class="field-error err-in">
+                <app-icon name="alert" [size]="14" />
+                <span>{{ msg }}</span>
+              </p>
+            }
+          </div>
+        </section>
+
+        <section
+          class="card sec-in rounded-lg p-5 sm:p-6"
+          style="--i: 3"
+          aria-labelledby="sec-notes"
+        >
+          <div class="mb-5 flex items-center gap-3">
+            <span
+              class="bg-brand-soft text-brand grid size-7 shrink-0 place-items-center rounded-lg"
+              aria-hidden="true"
+            >
+              <app-icon name="file-text" [size]="16" />
+            </span>
+            <h2 id="sec-notes" class="text-lg font-semibold">Notes</h2>
+            <span
+              class="chip ml-auto"
+              [class.done]="sec().notes.complete"
+              [attr.aria-label]="sec().notes.done + ' of ' + sec().notes.total + ' complete'"
+            >
+              @if (sec().notes.complete) {
+                <app-icon class="chip-check" name="check" [size]="12" />
+              }
+              <span class="num">{{ sec().notes.done }}/{{ sec().notes.total }}</span>
+            </span>
+          </div>
+          <div class="field" [class.shake]="shakeClass(f.description)">
+            <label class="label" for="description">Description</label>
+            <textarea
+              id="description"
+              rows="4"
+              placeholder="What they do, who they work with, anything useful to know."
+              class="input min-h-28 py-2.5"
+              [formField]="f.description"
+              [attr.aria-invalid]="errorOf(f.description) ? 'true' : null"
+              [attr.aria-describedby]="describedBy(f.description, 'description')"
+            ></textarea>
+            <p
+              class="count num mt-1.5 text-right text-xs"
+              [class.warn]="
+                descriptionLength() >= descriptionWarnAt && descriptionLength() <= descriptionMax
+              "
+              [class.over]="descriptionLength() > descriptionMax"
+              aria-live="polite"
+            >
+              {{ descriptionLength() }}/{{ descriptionMax }}
+            </p>
+            @if (errorOf(f.description); as msg) {
+              <p id="description-error" class="field-error err-in">
+                <app-icon name="alert" [size]="14" />
+                <span>{{ msg }}</span>
+              </p>
+            }
+          </div>
+        </section>
+
+        <div
+          class="action-bar border-line bg-surface fixed inset-x-0 bottom-0 z-20 flex items-center gap-3 border-t px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:sticky sm:inset-x-auto sm:bottom-3 sm:z-10 sm:rounded-lg sm:border sm:p-3"
+        >
+          <p
+            class="text-ink-2 hidden text-sm whitespace-nowrap sm:block lg:hidden xl:block"
+            aria-live="polite"
+          >
+            <span class="num text-ink font-semibold">{{ total().done }}/{{ total().total }}</span>
+            fields complete
+          </p>
+          <span class="flex-1"></span>
+          <button
+            type="button"
+            class="cancel min-h-11 px-3 whitespace-nowrap text-sm font-semibold"
+            (click)="onCancel()"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary save min-h-11 flex-1 whitespace-nowrap sm:flex-none"
+            [class.is-success]="succeeded()"
+            [class.pointer-events-none]="succeeded()"
+            [disabled]="saving()"
+            [attr.aria-disabled]="employeeForm().invalid() ? 'true' : null"
+            [attr.aria-busy]="saving()"
+          >
+            @if (saving()) {
+              <span class="swap-in inline-flex items-center gap-2">
+                <span
+                  class="size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+                  aria-hidden="true"
+                ></span>
+                Saving
+              </span>
+            } @else if (succeeded()) {
+              <span class="swap-in inline-flex items-center gap-2">
+                <app-icon class="check-pop" name="check" [size]="16" />
+                Saved
+              </span>
+            } @else {
+              <span class="swap-in">{{ isEdit() ? 'Save changes' : 'Save employee' }}</span>
+            }
+          </button>
+        </div>
+        <div #sentinel class="h-px" aria-hidden="true"></div>
+      </form>
+
+      <aside class="hidden w-80 shrink-0 lg:sticky lg:top-6 lg:block" aria-label="Form progress">
+        <div class="card sec-in rounded-lg p-5" style="--i: 2">
+          <div class="flex items-center gap-4">
+            <app-illustration name="document" [size]="72" />
+            <div class="min-w-0">
+              <p class="text-sm font-semibold">Checklist</p>
+              <p class="text-ink-2 mt-0.5 text-xs">
+                <span class="num text-ink font-semibold"
+                  >{{ total().done }}/{{ total().total }}</span
+                >
+                required fields complete
+              </p>
+            </div>
+          </div>
+          <div
+            class="track mt-4"
+            role="progressbar"
+            aria-label="Form completion"
+            aria-valuemin="0"
+            [attr.aria-valuemax]="total().total"
+            [attr.aria-valuenow]="total().done"
+          >
+            <div
+              class="fill"
+              [style.transform]="'scaleX(' + total().done / total().total + ')'"
+            ></div>
+          </div>
+          @for (s of sectionList(); track s.id) {
+            <div class="mt-5">
+              <p
+                class="text-ink-2 flex items-center justify-between text-xs font-semibold tracking-wide uppercase"
+              >
+                {{ s.title }}
+                <span class="num normal-case" [class.text-brand]="s.complete"
+                  >{{ s.done }}/{{ s.total }}</span
+                >
+              </p>
+              <ul class="mt-2 space-y-0.5">
+                @for (item of s.items; track item.id) {
+                  <li>
+                    <button
+                      type="button"
+                      class="check-row"
+                      [class.ok]="item.ok"
+                      (click)="focusField(item.id, $event)"
+                    >
+                      <span class="check-dot" aria-hidden="true">
+                        <app-icon name="check" [size]="12" />
+                      </span>
+                      <span>{{ item.label }}</span>
+                      <span class="sr-only">{{ item.ok ? 'complete' : 'incomplete' }}</span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      </aside>
+    </div>
+  }
+</div>
+
+<app-confirm-dialog
+  [open]="leaveOpen()"
+  (openChange)="onLeaveOpenChange($event)"
+  title="Discard changes?"
+  message="You have unsaved changes. If you leave now they will be lost."
+  confirmLabel="Discard"
+  cancelLabel="Keep editing"
+  tone="danger"
+  (confirmed)="onLeaveConfirmed()"
+  (cancelled)="onLeaveCancelled()"
+/>

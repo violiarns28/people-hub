@@ -1,0 +1,230 @@
+<div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+  <a
+    routerLink="/employees"
+    queryParamsHandling="preserve"
+    class="back text-ink-2 hover:text-ink group inline-flex min-h-11 items-center gap-1.5 text-sm font-medium"
+  >
+    <span class="back-arrow inline-flex"><app-icon name="arrow-left" [size]="16" /></span>
+    Back to employees
+  </a>
+
+  @if (employee(); as emp) {
+    <div class="mt-2 grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
+      <section class="card rise-in overflow-hidden">
+        <div class="bg-brand-soft relative h-24 overflow-hidden sm:h-28" aria-hidden="true">
+          <app-illustration
+            name="skyline"
+            [size]="640"
+            class="absolute right-0 bottom-0 max-w-none"
+          />
+        </div>
+        <header
+          class="border-line flex flex-wrap items-end gap-x-4 gap-y-3 border-b px-5 pb-5 sm:px-6"
+        >
+          <div
+            class="bg-brand-soft text-brand ring-surface relative -mt-9 self-start flex size-[4.5rem] shrink-0 items-center justify-center rounded-lg text-2xl font-semibold ring-4"
+            aria-hidden="true"
+          >
+            {{ initials() }}
+          </div>
+          <div class="min-w-0 flex-1 basis-48 pt-2">
+            <h1 class="text-2xl wrap-break-word font-semibold">
+              {{ emp.firstName }} {{ emp.lastName }}
+            </h1>
+            <p class="text-ink-3 font-mono text-sm wrap-break-word">&#64;{{ emp.username }}</p>
+            <p class="text-ink-2 mt-1 text-sm">{{ emp.group }}</p>
+          </div>
+          <span [class]="statusClass(emp.status)">{{ emp.status }}</span>
+        </header>
+
+        <dl class="grid gap-x-4 gap-y-1 p-3 sm:grid-cols-2 sm:p-4">
+          <div class="min-w-0 field">
+            <dt class="text-ink-3 text-xs font-semibold tracking-wide uppercase">Username</dt>
+            <dd class="mt-1 flex items-center gap-1 font-mono text-sm">
+              <span class="wrap-break-word">{{ emp.username }}</span>
+              <button
+                type="button"
+                class="copy btn-icon text-ink-2 hover:bg-surface-2 hover:text-ink relative size-7 shrink-0 after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']"
+                aria-label="Copy username"
+                (click)="copy('username', emp.username)"
+              >
+                <span class="ico relative inline-flex size-4 items-center justify-center">
+                  <span class="swap-a absolute inset-0" [class.gone]="copied() === 'username'">
+                    <app-icon name="copy" [size]="16" />
+                  </span>
+                  <span class="swap-b absolute inset-0" [class.shown]="copied() === 'username'">
+                    <app-icon name="check" [size]="16" />
+                  </span>
+                </span>
+              </button>
+            </dd>
+          </div>
+
+          <div class="min-w-0 field">
+            <dt class="text-ink-3 text-xs font-semibold tracking-wide uppercase">Group</dt>
+            <dd class="mt-1 text-sm">{{ emp.group }}</dd>
+          </div>
+
+          <div class="min-w-0 field sm:col-span-2">
+            <dt class="text-ink-3 text-xs font-semibold tracking-wide uppercase">Email</dt>
+            <dd class="mt-1 flex flex-wrap items-center gap-x-1 text-sm">
+              <app-masked-value
+                size="full"
+                [subject]="emp.username"
+                field="email"
+                [value]="emp.email"
+              />
+              <button
+                type="button"
+                class="copy btn-icon text-ink-2 hover:bg-surface-2 hover:text-ink relative size-7 shrink-0 after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']"
+                aria-label="Copy email"
+                [disabled]="!emailRevealed()"
+                (click)="copy('email', emp.email)"
+              >
+                <span class="ico relative inline-flex size-4 items-center justify-center">
+                  <span class="swap-a absolute inset-0" [class.gone]="copied() === 'email'">
+                    <app-icon name="copy" [size]="16" />
+                  </span>
+                  <span class="swap-b absolute inset-0" [class.shown]="copied() === 'email'">
+                    <app-icon name="check" [size]="16" />
+                  </span>
+                </span>
+              </button>
+            </dd>
+          </div>
+
+          <div class="min-w-0 field">
+            <dt class="text-ink-3 text-xs font-semibold tracking-wide uppercase">Birth date</dt>
+            <dd class="mt-1 text-sm">
+              <app-masked-value
+                size="full"
+                [subject]="emp.username"
+                field="birthDate"
+                [value]="birthText()"
+              />
+            </dd>
+          </div>
+
+          <div class="min-w-0 field">
+            <dt class="text-ink-3 text-xs font-semibold tracking-wide uppercase">Age</dt>
+            <dd class="mt-1 text-sm">
+              <app-masked-value
+                size="full"
+                [subject]="emp.username"
+                field="birthDate"
+                label="age"
+                [value]="ageText()"
+              />
+            </dd>
+          </div>
+
+          <div class="min-w-0 field">
+            <dt class="text-ink-3 text-xs font-semibold tracking-wide uppercase">Basic salary</dt>
+            <dd class="mt-1 text-sm font-semibold">
+              <app-masked-value
+                size="full"
+                [subject]="emp.username"
+                field="basicSalary"
+                [value]="salaryText()"
+              />
+            </dd>
+          </div>
+
+          <div class="min-w-0 field">
+            <dt class="text-ink-3 text-xs font-semibold tracking-wide uppercase">Status</dt>
+            <dd class="mt-1">
+              <span [class]="statusClass(emp.status)">{{ emp.status }}</span>
+            </dd>
+          </div>
+
+          <div class="min-w-0 field sm:col-span-2">
+            <dt class="text-ink-3 text-xs font-semibold tracking-wide uppercase">Description</dt>
+            <dd class="text-ink-2 mt-1 text-sm">{{ emp.description }}</dd>
+          </div>
+        </dl>
+        <span class="sr-only" aria-live="polite">{{ copied() ? 'Copied' : '' }}</span>
+
+        <div
+          class="border-line bg-surface-2 flex flex-wrap justify-end gap-3 border-t px-5 py-4 sm:px-6"
+        >
+          <button
+            type="button"
+            class="act act-del btn min-h-11 border-bad/40 text-bad hover:bg-bad-soft border bg-transparent"
+            (click)="deleteOpen.set(true)"
+          >
+            <span class="ico inline-flex"><app-icon name="trash" [size]="16" /></span>
+            Delete
+          </button>
+          <a
+            class="act act-edit btn btn-secondary min-h-11"
+            [routerLink]="['/employees', emp.username, 'edit']"
+            queryParamsHandling="preserve"
+          >
+            <span class="ico inline-flex"><app-icon name="pencil" [size]="16" /></span>
+            Edit
+          </a>
+          <button type="button" class="btn btn-primary min-h-11 min-w-24" (click)="onOk()">
+            OK
+          </button>
+        </div>
+      </section>
+
+      <aside
+        class="card rise-in p-5 xl:sticky xl:top-6"
+        style="animation-delay: 80ms"
+        aria-labelledby="recent-access"
+      >
+        <h2 id="recent-access" class="flex items-center gap-2 text-base font-semibold">
+          <app-icon name="shield" [size]="16" />
+          Recent access
+        </h2>
+        @if (accessEntries().length > 0) {
+          <ul class="mt-3 space-y-3">
+            @for (entry of accessEntries(); track entry.id) {
+              <li animate.enter="rise-in" class="flex items-start gap-2.5 text-sm">
+                <span
+                  class="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-lg"
+                  [class]="entry.revealed ? 'bg-warn-soft text-warn' : 'bg-surface-2 text-ink-3'"
+                >
+                  <app-icon [name]="entry.revealed ? 'eye' : 'eye-off'" [size]="13" />
+                </span>
+                <span class="min-w-0">
+                  <span class="block">{{ entry.label }}</span>
+                  <span class="text-ink-3 flex items-center gap-1 text-xs">
+                    <app-icon name="clock" [size]="12" />
+                    {{ entry.when }}
+                  </span>
+                </span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <div class="mt-3 flex flex-col items-center gap-2 text-center">
+            <app-illustration name="secure" [size]="120" />
+            <p class="text-ink-3 text-sm">No sensitive fields revealed yet</p>
+          </div>
+        }
+      </aside>
+    </div>
+    <app-confirm-dialog
+      [open]="deleteOpen()"
+      (openChange)="deleteOpen.set($event)"
+      title="Delete employee?"
+      [message]="'Delete ' + emp.firstName + ' ' + emp.lastName + '? This cannot be undone.'"
+      confirmLabel="Delete"
+      cancelLabel="Cancel"
+      tone="danger"
+      (confirmed)="onDeleteConfirmed()"
+    />
+  } @else {
+    <div class="card mt-4 p-10 text-center">
+      <p class="text-xl font-semibold">Employee not found</p>
+      <p class="text-ink-2 mt-1 text-sm">
+        There is no employee with the username "{{ username() }}".
+      </p>
+      <button type="button" class="btn btn-primary mt-5 min-h-11" (click)="onOk()">
+        Back to list
+      </button>
+    </div>
+  }
+</div>
