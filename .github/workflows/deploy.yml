@@ -77,4 +77,4 @@ jobs:
         with:
           path: dist/${{ github.event.repository.name }}/browser
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
